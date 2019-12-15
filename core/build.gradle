@@ -1,0 +1,53 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileOptions {
+        sourceCompatibility versions.sourceCompatibility
+        targetCompatibility versions.targetCompatibility
+    }
+
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
+
+    defaultConfig {
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    lintOptions {
+        textReport true
+        textOutput 'stdout'
+        disable 'TimberTagLength'
+    }
+    buildTypes {
+        debug {
+            minifyEnabled true
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            debuggable false
+        }
+    }
+}
+afterEvaluate {
+    javadoc.classpath += files(android.libraryVariants.collect { variant ->
+        variant.javaCompiler.classpath.files
+    })
+}
+dependencies {
+    implementation deps.support.annotations
+
+    implementation deps.timber
+
+    api deps.rxJava
+    api deps.rxJavaReplay
+
+    testImplementation deps.jUnit
+    testImplementation deps.mockito
+    testImplementation deps.awaitility
+}
+
+bintrayConfig.libraryName = 'RxShell'
+bintrayConfig.artifact = 'core'
+bintrayConfig.libraryDescription = 'Android shells with RxJava support.'

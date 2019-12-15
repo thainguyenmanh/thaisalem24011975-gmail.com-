@@ -1,0 +1,78 @@
+apply plugin: 'com.github.dcendents.android-maven'
+
+group = bintrayConfig.publishedGroupId
+version = bintrayConfig.libraryVersion
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            packaging 'aar'
+            name bintrayConfig.libraryName
+            description bintrayConfig.libraryDescription
+            url bintrayConfig.siteUrl
+
+            artifactId bintrayConfig.artifact
+            groupId bintrayConfig.publishedGroupId
+            version bintrayConfig.libraryVersion
+
+            licenses {
+                license {
+                    name bintrayConfig.licenseName
+                    url bintrayConfig.licenseUrl
+                    distribution 'repo'
+                }
+            }
+            scm {
+                connection bintrayConfig.gitUrl
+                url bintrayConfig.siteUrl
+            }
+            developers {
+                developer {
+                    id bintrayConfig.developerId
+                    name bintrayConfig.developerName
+                    email bintrayConfig.developerEmail
+                }
+            }
+        }
+    }
+}
+
+apply plugin: "com.jfrog.bintray"
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+// https://github.com/bintray/gradle-bintray-plugin#buildgradle
+bintray {
+    user = bintrayCredentials.bintrayUser
+    key = bintrayCredentials.bintrayApiKey
+    configurations = ['archives']
+    pkg {
+        repo = bintrayConfig.bintrayRepo
+        name = bintrayConfig.bintrayName
+        desc = bintrayConfig.libraryDescription
+
+        dryRun = false
+        publish = true
+        override = false
+
+        userOrg = user
+        licenses = bintrayConfig.allLicenses
+        vcsUrl = bintrayConfig.gitUrl
+        issueTrackerUrl = bintrayConfig.issuesUrl
+
+        publicDownloadNumbers = true
+    }
+}
